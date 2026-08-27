@@ -29,6 +29,27 @@
   .ver a{color:var(--ink);text-decoration:none;font-size:13px;white-space:nowrap;}
   .ver a:hover{color:var(--acc);}
   footer{margin-top:30px;color:#5b6b8f;font-size:12px;text-align:center;line-height:1.8;}
+
+  /* 右侧历代版本标签栏 */
+  .side-tabs{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:999;display:flex;flex-direction:column;align-items:flex-end;}
+  .side-tab-handle{writing-mode:vertical-rl;background:linear-gradient(180deg,rgba(61,220,151,.9),rgba(34,160,120,.95));color:#04110a;font-weight:800;letter-spacing:2px;padding:16px 8px;border-radius:12px 0 0 12px;cursor:pointer;font-size:14px;box-shadow:0 4px 18px rgba(0,0,0,.45);user-select:none;transition:filter .15s;}
+  .side-tab-handle:hover{filter:brightness(1.15);}
+  .side-tab-body{display:none;background:linear-gradient(180deg,rgba(16,26,54,.97),rgba(8,12,26,.97));border:1px solid rgba(61,220,151,.35);border-right:none;border-radius:14px 0 0 14px;padding:14px 12px;width:200px;box-shadow:-6px 4px 24px rgba(0,0,0,.5);max-height:80vh;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .side-tabs.open .side-tab-body{display:block;}
+  .side-tab-title{font-size:14px;font-weight:800;letter-spacing:2px;color:var(--acc);margin-bottom:10px;text-align:center;border-bottom:1px solid rgba(61,220,151,.25);padding-bottom:8px;}
+  .side-tab-item{display:flex;align-items:center;gap:8px;padding:9px 8px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);margin-bottom:8px;}
+  .side-tab-item:last-child{margin-bottom:0;}
+  .side-tab-item .v{font-weight:800;color:var(--acc);min-width:30px;font-size:14px;}
+  .side-tab-item .name{flex:1;color:var(--muted);font-size:11px;line-height:1.4;}
+  .side-tab-item .op{color:var(--ink);text-decoration:none;font-size:12px;white-space:nowrap;border:1px solid rgba(255,255,255,.16);padding:4px 8px;border-radius:8px;}
+  .side-tab-item .op.dl{color:#04110a;background:var(--acc);border-color:var(--acc);font-weight:800;}
+  .side-tab-item .op:hover{filter:brightness(1.15);}
+  .side-tab-item.hot{border-color:rgba(255,209,102,.5);}
+  .side-tab-item.hot .v{color:var(--acc2);}
+  @media (max-width:640px){
+    .side-tab-body{width:180px;}
+    .side-tab-handle{padding:12px 6px;font-size:12px;}
+  }
 </style>
 </head>
 <body>
@@ -49,6 +70,7 @@
     <h2>📦 历史版本</h2>
     <div class="ver"><span class="v">v13</span><span class="desc">账号 ID 系统 · ID 直连 · 经典邀请码</span><a href="tokugame-v13.html">打开 →</a></div>
     <div class="ver"><span class="v">v12</span><span class="desc">经典邀请码联机 · 本地对战</span><a href="tokugame-v12.html">打开 →</a></div>
+    <div class="ver"><span class="v">v11</span><span class="desc">账号系统上线 · ID 直连首版</span><a href="tokugame-v11.html">打开 →</a></div>
   </div>
 
   <div class="card">
@@ -66,6 +88,18 @@
     GitHub: laihainb666/tokugame · Powered by PeerJS WebRTC<br>
     问题反馈 / 新版本发布都会同步更新在此页面
   </footer>
+</div>
+
+<!-- 右侧历代版本标签栏 -->
+<div class="side-tabs" id="sideTabs">
+  <div class="side-tab-body" id="sideTabBody">
+    <div class="side-tab-title">📦 历代版本</div>
+    <div class="side-tab-item hot"><span class="v">v14</span><span class="name">最新 · ID直连/准备机制/低延迟</span><a class="op" href="tokugame-v14.html">打开</a><a class="op dl" href="tokugame-v14.html" download="tokugame-v14.html">下载</a></div>
+    <div class="side-tab-item"><span class="v">v13</span><span class="name">账号ID直连 · 经典邀请码</span><a class="op" href="tokugame-v13.html">打开</a><a class="op dl" href="tokugame-v13.html" download="tokugame-v13.html">下载</a></div>
+    <div class="side-tab-item"><span class="v">v12</span><span class="name">经典邀请码联机 · 本地对战</span><a class="op" href="tokugame-v12.html">打开</a><a class="op dl" href="tokugame-v12.html" download="tokugame-v12.html">下载</a></div>
+    <div class="side-tab-item"><span class="v">v11</span><span class="name">账号系统 · ID直连首版</span><a class="op" href="tokugame-v11.html">打开</a><a class="op dl" href="tokugame-v11.html" download="tokugame-v11.html">下载</a></div>
+  </div>
+  <div class="side-tab-handle" onclick="document.getElementById('sideTabs').classList.toggle('open')">历代版本 ▸</div>
 </div>
 </body>
 </html>
