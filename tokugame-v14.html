@@ -51,6 +51,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
 
 /* ---------- 模式选择 ---------- */
+#screen-mode{justify-content:flex-start;padding:18px 12px 44px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
+#screen-mode .scr-title{margin:6px 0 20px;flex:none;}
+#screen-mode .mode-row{margin-bottom:16px;flex:none;}
 .mode-row{display:grid;grid-template-columns:repeat(3,212px);gap:20px;justify-content:center;}
 .mode-row .mode-card{width:auto;}
 @media (max-width:760px){
