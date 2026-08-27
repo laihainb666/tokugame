@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>特摄英雄大乱斗 · 在线版入口</title>
+<style>
+  :root{--bg:#04060c;--bg2:#0b1020;--ink:#eef4ff;--muted:#93a7cf;--acc:#3ddc97;--acc2:#ffd166;--err:#ff3b5c;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:radial-gradient(1200px 600px at 20% -10%,#12204a 0%,var(--bg) 55%);color:var(--ink);font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 16px 60px;}
+  .wrap{max-width:680px;width:100%;}
+  h1{font-size:34px;letter-spacing:1px;text-align:center;}
+  h1 span{color:var(--acc);}
+  .sub{text-align:center;color:var(--muted);margin:10px 0 30px;font-size:14px;}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:22px;margin-bottom:16px;transition:transform .15s;}
+  .card:hover{transform:translateY(-2px);border-color:rgba(61,220,151,.5);}
+  .card .tag{display:inline-block;font-size:11px;padding:2px 10px;border-radius:999px;background:rgba(61,220,151,.15);color:var(--acc);margin-bottom:8px;font-weight:700;}
+  .card .tag.hot{background:rgba(255,209,102,.15);color:var(--acc2);}
+  .card h2{font-size:20px;margin-bottom:6px;}
+  .card p{color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:14px;}
+  .btn{display:inline-block;background:var(--acc);color:#04110a;font-weight:800;padding:10px 26px;border-radius:10px;text-decoration:none;font-size:15px;border:none;cursor:pointer;}
+  .btn.ghost{background:rgba(255,255,255,.08);color:var(--ink);border:1px solid rgba(255,255,255,.18);margin-left:8px;}
+  .btn:hover{filter:brightness(1.1);}
+  .note{color:var(--muted);font-size:12px;line-height:1.8;margin-top:8px;text-align:center;}
+  .note b{color:var(--ink);}
+  .ver{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);margin-top:10px;}
+  .ver .v{color:var(--acc);font-weight:800;min-width:52px;}
+  .ver .desc{color:var(--muted);font-size:12px;flex:1;line-height:1.5;}
+  .ver a{color:var(--ink);text-decoration:none;font-size:13px;white-space:nowrap;}
+  .ver a:hover{color:var(--acc);}
+  footer{margin-top:30px;color:#5b6b8f;font-size:12px;text-align:center;line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>特摄英雄<span>大乱斗</span></h1>
+  <div class="sub">TOKUSATSU HERO BRAWL · 网页在线版 · 免下载直接玩</div>
+
+  <div class="card">
+    <span class="tag hot">⭐ 推荐 · v14 最新版</span>
+    <h2>🆔 ID 直连 · 客机准备机制 · 低延迟优化</h2>
+    <p>远程联机免邀请码：注册账号 → 输入对方 ID 秒连（自动打洞 + 公共中继兜底，有网就能连）。v14 新增客机「准备就绪」机制、25Hz 状态同步 / 30Hz 输入采样、多 STUN/TURN 信令增强，网页直接打开即玩。</p>
+    <a class="btn" href="tokugame-v14.html">▶ 开始游戏（v14）</a>
+    <a class="btn ghost" href="README.md">📖 玩法说明</a>
+    <div class="note">手机/电脑浏览器直接打开即可，<b>无需下载任何文件</b>；建议用 Chrome / Edge / Safari。</div>
+  </div>
+
+  <div class="card">
+    <h2>📦 历史版本</h2>
+    <div class="ver"><span class="v">v13</span><span class="desc">账号 ID 系统 · ID 直连 · 经典邀请码</span><a href="tokugame-v13.html">打开 →</a></div>
+    <div class="ver"><span class="v">v12</span><span class="desc">经典邀请码联机 · 本地对战</span><a href="tokugame-v12.html">打开 →</a></div>
+  </div>
+
+  <div class="card">
+    <h2>🌐 网络对战怎么玩？</h2>
+    <p>
+      ① 两个设备（或两个浏览器标签页）都打开本页面；<br>
+      ② 都点「账号中心」注册/登录账号，记下自己的 ID（THB-XXXX-XXXX）；<br>
+      ③ 一方点「网络对战 → ID 直连 → 创建房间」，把 ID 发给对方；<br>
+      ④ 另一方点「连接对方 ID」输入对方 ID 即可直连；<br>
+      ⑤ 客机选好角色点「准备就绪」，主机才能点「开始对战」。
+    </p>
+  </div>
+
+  <footer>
+    GitHub: laihainb666/tokugame · Powered by PeerJS WebRTC<br>
+    问题反馈 / 新版本发布都会同步更新在此页面
+  </footer>
+</div>
+</body>
+</html>
