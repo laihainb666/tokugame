@@ -1022,9 +1022,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);
       <div class="ed-sec">⚖️ 数值倍率</div>
       <div class="ed-grid">
         <div class="ed-row"><label>血量倍率</label><input type="range" id="set-hp-mul" min="0.5" max="100" step="0.1" value="1"><span class="val" id="set-hp-mul-v">×1.0</span></div>
+        <div class="ed-row"><label>整体伤害倍率</label><input type="range" id="set-all-dmg-mul" min="0.2" max="2" step="0.05" value="1"><span class="val" id="set-all-dmg-mul-v">×1.00</span></div>
         <div class="ed-row"><label>远程伤害倍率</label><input type="range" id="set-ranged-mul" min="0.2" max="2" step="0.05" value="0.7"><span class="val" id="set-ranged-mul-v">×0.70</span></div>
         <div class="ed-row"><label>弹幕硬直倍率</label><input type="range" id="set-proj-stun" min="0.2" max="2" step="0.05" value="0.6"><span class="val" id="set-proj-stun-v">×0.60</span></div>
-        <div class="ed-row"><label>空中伤害倍率</label><input type="range" id="set-air-dmg-mul" min="0.2" max="2" step="0.05" value="0.9"><span class="val" id="set-air-dmg-mul-v">×0.90</span></div>
+        <div class="ed-row"><label>空中伤害倍率</label><input type="range" id="set-air-dmg-mul" min="0.2" max="2" step="0.05" value="0.7"><span class="val" id="set-air-dmg-mul-v">×0.70</span></div>
       </div>
       <div class="ctl-padtest" style="margin-top:14px">提示：设置立即生效，重新开始对局后血量倍率完全应用</div>
     </div>
@@ -1627,7 +1628,8 @@ const GameSettings={
   hpMul:1.0,            // 血量倍率
   rangedMul:0.7,        // 远程伤害倍率
   projStunMul:0.6,      // 弹幕硬直倍率
-  airDmgMul:0.9,        // 空中攻击伤害倍率（默认0.9=削弱10%，可调 0.2~2）
+  allDmgMul:1.0,        // 整体伤害倍率（全局乘数，默认1.0，可调 0.2~2）
+  airDmgMul:0.7,        // 空中攻击伤害倍率（默认0.7=空中连击削弱30%，可调 0.2~2）
   aiBattleLv:3,         // 人机对打难度档位（1~5）
   load(){
     try{
@@ -1640,6 +1642,7 @@ const GameSettings={
         if(typeof s.hpMul==='number')this.hpMul=clamp(s.hpMul,0.5,100);
         if(typeof s.rangedMul==='number')this.rangedMul=clamp(s.rangedMul,0.2,2);
         if(typeof s.projStunMul==='number')this.projStunMul=clamp(s.projStunMul,0.2,2);
+        if(typeof s.allDmgMul==='number')this.allDmgMul=clamp(s.allDmgMul,0.2,2);
         if(typeof s.airDmgMul==='number')this.airDmgMul=clamp(s.airDmgMul,0.2,2);
         if(typeof s.aiBattleLv==='number')this.aiBattleLv=clamp(Math.round(s.aiBattleLv),1,5);
       }
@@ -1649,13 +1652,13 @@ const GameSettings={
     try{localStorage.setItem('toku-gamesettings',JSON.stringify({
       kdProtect:this.kdProtect,perfectBlock:this.perfectBlock,
       substitution:this.substitution,antiInf:this.antiInf,hpMul:this.hpMul,
-      rangedMul:this.rangedMul,projStunMul:this.projStunMul,airDmgMul:this.airDmgMul,aiBattleLv:this.aiBattleLv
+      rangedMul:this.rangedMul,projStunMul:this.projStunMul,allDmgMul:this.allDmgMul,airDmgMul:this.airDmgMul,aiBattleLv:this.aiBattleLv
     }));}catch(e){}
   },
   reset(){
     this.kdProtect=false;this.perfectBlock=false;this.substitution=false;
     this.antiInf=2;
-    this.hpMul=1.0;this.rangedMul=0.7;this.projStunMul=0.6;this.airDmgMul=0.9;this.aiBattleLv=3;
+    this.hpMul=1.0;this.rangedMul=0.7;this.projStunMul=0.6;this.allDmgMul=1.0;this.airDmgMul=0.7;this.aiBattleLv=3;
     this.save();
   }
 };
@@ -8201,6 +8204,7 @@ class Fighter{
     // 完美格挡判定：开启后格挡初期（0.1秒内）100%减伤+反击硬直
     const perfectBlock=GameSettings.perfectBlock&&blocked&&this.blockT<0.1&&hit.type!=='unblock';
     let dmg=hit.dmg*(attacker.dmgMul||1)*(this.defMul||1);
+    dmg*=GameSettings.allDmgMul; // 整体伤害倍率（设置面板可调 0.2~2）
     // 力量属性伤害加成：只作用于普通攻击（拳/踢），不影响技能和必杀
     if(hit.type==='normal'&&attacker.charDef.power){
       dmg*=1+(attacker.charDef.power-3)*.08;
@@ -8212,7 +8216,7 @@ class Fighter{
     }
     if(this.charDef.tough)dmg*=this.charDef.tough;
     if(this.hardenT>0)dmg*=.35; // 硬质化：减伤65%
-    if(attacker.airAtk)dmg*=GameSettings.airDmgMul; // 空中攻击伤害倍率（默认0.9，设置面板可调 0.2~2）
+    if(attacker.airAtk)dmg*=GameSettings.airDmgMul; // 空中攻击伤害倍率（默认0.7，设置面板可调 0.2~2）
     if(blocked)dmg*= (BLOCK_MULT[hit.type]||.3);
     if(perfectBlock)dmg=0; // 完美格挡：完全免伤
     dmg=Math.max(perfectBlock?0:1,Math.round(dmg));
@@ -8223,8 +8227,8 @@ class Fighter{
       Game.testHits=(Game.testHits||0)+1;
       if(attacker.airAtk)Game.testAirHits=(Game.testAirHits||0)+1;
     }
-    /* ===== 反无限连·连击伤害递减：连击越长伤害越低（最低40%）——仅「完整」档 ===== */
-    if(GameSettings.antiInf===2&&attacker.comboTimer>0&&attacker.comboCount>0&&hit.type!=='projectile')
+    /* ===== 反无限连·连击伤害递减：连击越长伤害越低（最低35%），弹幕同样递减——仅「完整」档 ===== */
+    if(GameSettings.antiInf===2&&attacker.comboTimer>0&&attacker.comboCount>0)
       dmg*=Math.max(.35,1-attacker.comboCount*.10);
     /* 反无限连·重复招式递减：同一招循环伤害衰减（最低30%）——仅「完整」档 */
     if(GameSettings.antiInf===2&&attacker.moveRep){
@@ -8321,6 +8325,19 @@ class Fighter{
           return true;
         }
       }
+    }
+    // 反无限连·连击上限：单套连击≥12段强制挣脱（修复连续攻击/无限连bug；必杀多段豁免）
+    if(GameSettings.antiInf>=1&&attacker!==this&&hit.type!=='special'&&attacker.comboCount>=12){
+      const bDir=attacker.x<this.x?1:-1;
+      this.setState('launched');
+      this.vx=bDir*700;this.vy=-560;this.onGround=false;this.bounced=false;
+      this.invulnT=Math.max(this.invulnT,.6);
+      attacker.hitstunT=.3;attacker.setState('hit');attacker.vx=-bDir*240;
+      FX.ring(this.x,this.chestY,'#7fd4ff',120,.45);
+      FX.rtext(this.x,this.headY-10,'连击上限!','#7fd4ff');
+      FX.shake=Math.max(FX.shake,10);
+      AudioSys.sfx('parry' in AudioSys?'parry':'block');
+      return true;
     }
     if((this.armor||this.charDef.builtArmor||gearArmor)&&(!hit.launch||gearArmor)){
       // 超级装甲：受击不硬直，仅轻微位移（须佐霸体连击飞也免疫）
@@ -16075,6 +16092,8 @@ function buildSettingsUI(){
   $('set-ranged-mul-v').textContent='×'+GameSettings.rangedMul.toFixed(2);
   $('set-proj-stun').value=GameSettings.projStunMul;
   $('set-proj-stun-v').textContent='×'+GameSettings.projStunMul.toFixed(2);
+  $('set-all-dmg-mul').value=GameSettings.allDmgMul;
+  $('set-all-dmg-mul-v').textContent='×'+GameSettings.allDmgMul.toFixed(2);
   $('set-air-dmg-mul').value=GameSettings.airDmgMul;
   $('set-air-dmg-mul-v').textContent='×'+GameSettings.airDmgMul.toFixed(2);
   $('set-ai-battle').value=GameSettings.aiBattleLv;
@@ -17424,6 +17443,11 @@ function bindMenus(){
   $('set-air-dmg-mul').addEventListener('input',()=>{
     GameSettings.airDmgMul=clamp(parseFloat($('set-air-dmg-mul').value)||1,0.2,2);
     $('set-air-dmg-mul-v').textContent='×'+GameSettings.airDmgMul.toFixed(2);
+    GameSettings.save();
+  });
+  $('set-all-dmg-mul').addEventListener('input',()=>{
+    GameSettings.allDmgMul=clamp(parseFloat($('set-all-dmg-mul').value)||1,0.2,2);
+    $('set-all-dmg-mul-v').textContent='×'+GameSettings.allDmgMul.toFixed(2);
     GameSettings.save();
   });
   $('set-ai-battle').addEventListener('input',()=>{
