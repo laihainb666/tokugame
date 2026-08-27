@@ -1643,7 +1643,12 @@ const GameSettings={
         if(typeof s.rangedMul==='number')this.rangedMul=clamp(s.rangedMul,0.2,2);
         if(typeof s.projStunMul==='number')this.projStunMul=clamp(s.projStunMul,0.2,2);
         if(typeof s.allDmgMul==='number')this.allDmgMul=clamp(s.allDmgMul,0.2,2);
-        if(typeof s.airDmgMul==='number')this.airDmgMul=clamp(s.airDmgMul,0.2,2);
+        // 旧存档迁移：v14 平衡更新前默认 airDmgMul=0.9（旧默认）→ 迁移为 0.7；用户手动调过的非默认值保留
+        if(typeof s.airDmgMul==='number'){
+          this.airDmgMul=clamp(s.airDmgMul,0.2,2);
+          if(typeof s.allDmgMul!=='number'&&s.airDmgMul===0.9)this.airDmgMul=0.7;
+        }else{this.airDmgMul=0.7;}
+        if(typeof s.allDmgMul!=='number')this.allDmgMul=1.0;
         if(typeof s.aiBattleLv==='number')this.aiBattleLv=clamp(Math.round(s.aiBattleLv),1,5);
       }
     }catch(e){}
