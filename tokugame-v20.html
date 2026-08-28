@@ -562,7 +562,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);
       <button class="mode-card" data-mode="tower">
         <div class="mode-ico">🗼</div>
         <div class="mode-name">BOSS 试炼塔</div>
-        <div class="mode-desc">v18 全新玩法！<br>连战 5 层传说级 BOSS<br>奥王→诺亚→赛迦→暗黑贝利亚→逢魔时王</div>
+        <div class="mode-desc">连战 5 层传说级 BOSS<br>奥王→诺亚→赛迦→暗黑贝利亚→逢魔时王<br><span style="color:#ff5ad9">v20 通关解锁无尽模式：BOSS随机化 · AI指数递增 · 无上限</span></div>
       </button>
       <button class="mode-card" data-mode="arcade">
         <div class="mode-ico">🏆</div>
@@ -752,6 +752,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);
     <div class="char-filter-wrap" id="char-filter-wrap">
       <div class="char-filter-bar" id="char-filter-bar">
         <button class="cat-tab on" data-cat="全部">全部</button>
+        <button class="cat-tab" data-cat="游戏·星穹战甲系">游戏·星穹战甲系</button>
+        <button class="cat-tab" data-cat="西方·神话降临系">西方·神话降临系</button>
+        <button class="cat-tab" data-cat="动漫·咱们裸熊系">动漫·咱们裸熊系</button>
         <button class="cat-tab" data-cat="奥特曼系">奥特曼系</button>
         <button class="cat-tab" data-cat="假面骑士系">假面骑士系</button>
         <button class="cat-tab" data-cat="战队/怪兽系">战队/怪兽系</button>
@@ -12091,25 +12094,103 @@ class AIController{
         this.xingtianDetail=_xt.detail;
       }
     }
+    /* ---- v20 全AI指数级升级：所有引擎在原基础上再次爆发（六引擎全面拉满，档位越高差距越大） ---- */
+    if(this.engine==='alpha'){
+      /* 阿尔法·觉醒：基础引擎也获得指数强化，跃升接近刑天级 */
+      this.react=Math.min(this.react,.05);
+      this.aggr=Math.max(this.aggr,.92);
+      this.spec=Math.max(this.spec,.93);
+      this.block=Math.max(this.block,.78);
+      this.dodge=Math.max(this.dodge,.86);
+      this.decideMul=Math.min(this.decideMul||1,.30);
+      this.comboSuccessRate=Math.max(this.comboSuccessRate||.55,.95);
+      if(this.isExpert&&this.learnedMoves){this.learnedMoves.learningRate=1;}
+      if(this.blockCounterT>=0)this.blockCounterT=Math.max(this.blockCounterT,.5);
+    }
+    if(this.engine==='delta'){
+      /* 德尔塔·超进化：预测大脑全面再突破 */
+      this.react=Math.min(this.react,.032);
+      this.aggr=Math.max(this.aggr,.96);
+      this.spec=Math.max(this.spec,.97);
+      this.block=Math.max(this.block,.9);
+      this.dodge=Math.max(this.dodge,.94);
+      this.decideMul=Math.min(this.decideMul||1,.20);
+      this.comboSuccessRate=Math.max(this.comboSuccessRate||.55,1);
+      if(this.isExpert&&this.learnedMoves){this.learnedMoves.learningRate=1;}
+      if(this.blockCounterT>=0)this.blockCounterT=Math.max(this.blockCounterT,.55);
+    }
+    if(this.engine==='omega'){
+      /* 欧米茄·究极觉醒：终极逻辑突破物理极限 */
+      this.react=Math.min(this.react,.022);
+      this.aggr=Math.max(this.aggr,.99);
+      this.spec=Math.max(this.spec,.99);
+      this.block=Math.max(this.block,.96);
+      this.dodge=Math.max(this.dodge,.98);
+      this.decideMul=Math.min(this.decideMul||1,.14);
+      this.comboSuccessRate=Math.max(this.comboSuccessRate||.55,1);
+      if(this.isExpert&&this.learnedMoves){this.learnedMoves.learningRate=1;}
+      if(this.blockCounterT>=0)this.blockCounterT=Math.max(this.blockCounterT,.6);
+    }
+    if(this.engine==='fusion'){
+      /* 融合·究极进化：双脑融合全面超越 */
+      this.react=Math.min(this.react,.028);
+      this.aggr=Math.max(this.aggr,.97);
+      this.spec=Math.max(this.spec,.97);
+      this.block=Math.max(this.block,.93);
+      this.dodge=Math.max(this.dodge,.96);
+      this.decideMul=Math.min(this.decideMul||1,.17);
+      this.comboSuccessRate=Math.max(this.comboSuccessRate||.55,1);
+      if(this.isExpert&&this.learnedMoves){this.learnedMoves.learningRate=1;}
+      if(this.blockCounterT>=0)this.blockCounterT=Math.max(this.blockCounterT,.58);
+    }
+    if(this.engine==='merge'){
+      /* 天元·终极合体：三大AI合并突破次元 */
+      this.react=Math.min(this.react,.018);
+      this.aggr=Math.max(this.aggr,.98);
+      this.spec=Math.max(this.spec,.98);
+      this.block=Math.max(this.block,.95);
+      this.dodge=Math.max(this.dodge,.97);
+      this.decideMul=Math.min(this.decideMul||1,.12);
+      this.comboSuccessRate=Math.max(this.comboSuccessRate||.55,1);
+      if(this.isExpert&&this.learnedMoves){this.learnedMoves.learningRate=1;}
+      if(this.blockCounterT>=0)this.blockCounterT=Math.max(this.blockCounterT,.62);
+    }
+    if(this.engine==='xingtian'){
+      /* 刑天·神域降临：当代最强再上层楼，反应逼近时间颗粒度 */
+      this.react=Math.min(this.react,.008);
+      this.aggr=clamp(Math.max(this.aggr,.62),.62,.82);
+      this.spec=Math.max(this.spec,.9);
+      this.block=Math.max(this.block,.94);
+      this.dodge=Math.max(this.dodge,.95);
+      this.decideMul=Math.min(this.decideMul||1,.07);
+      this.comboSuccessRate=Math.max(this.comboSuccessRate||.55,1);
+      if(this.isExpert&&this.learnedMoves){this.learnedMoves.learningRate=1.1;}
+      if(this.blockCounterT>=0)this.blockCounterT=Math.max(this.blockCounterT,.65);
+    }
     /* ---- v20 高等级AI终极强化：档位4~5在原引擎基础上再次突破（练度越高，AI越恐怖） ---- */
     if(this.stage>=4){
-      this.react=Math.max(.008,this.react*.72);            // 反应再快 28%
-      this.decideMul=Math.min(this.decideMul||1,.16);      // 决策间隔再压缩
-      this.comboSuccessRate=Math.max(this.comboSuccessRate||.55,.98); // 连招近乎最优
+      this.react=Math.max(.006,this.react*.72);            // 反应再快 28%
+      this.decideMul=Math.min(this.decideMul||1,.12);      // 决策间隔再压缩
+      this.comboSuccessRate=Math.max(this.comboSuccessRate||.55,.99); // 连招近乎最优
       this.block=Math.min(1,this.block+.10);               // 格挡再 +10%
       this.dodge=Math.min(1,this.dodge+.08);               // 闪避再 +8%
       if(this.engine!=='xingtian')this.aggr=Math.min(1,this.aggr+.08); // 非刑天进攻再 +8%
-      if(this.learnedMoves)this.learnedMoves.learningRate=1;   // 即学即用
+      if(this.learnedMoves)this.learnedMoves.learningRate=1.1;   // 即学即用
       if(this.blockCounterT>=0)this.blockCounterT=Math.max(this.blockCounterT,.6);
     }
     if(this.stage>=5){
-      this.react=Math.max(.004,this.react*.70);            // 5级：反应逼近物理极限
-      this.decideMul=Math.min(this.decideMul||1,.10);      // 5级：近乎零思考间隔
+      this.react=Math.max(.002,this.react*.70);            // 5级：反应逼近物理极限
+      this.decideMul=Math.min(this.decideMul||1,.07);      // 5级：近乎零思考间隔
       this.comboSuccessRate=Math.max(this.comboSuccessRate||.55,1); // 5级：连招100%最优
       this.block=Math.min(1,this.block+.10);
       this.dodge=Math.min(1,this.dodge+.08);
-      if(this.learnedMoves)this.learnedMoves.learningRate=1.2; // 5级：超速学习对手
+      if(this.learnedMoves)this.learnedMoves.learningRate=1.3; // 5级：超速学习对手
       if(this.blockCounterT>=0)this.blockCounterT=Math.max(this.blockCounterT,.7);
+    }
+    /* ---- v20 巅峰领域：任何引擎在高档位下共享终极突破 ---- */
+    if(this.stage>=5){
+      this.react=Math.min(this.react,.003);
+      this.comboSuccessRate=Math.max(this.comboSuccessRate||.55,1);
     }
     /* ---- v15 德尔塔AI + AI API 外部大脑：命中动作直接接管本帧，失败自动回退本地AI ---- */
     if((this.engine==='delta'||this.engine==='omega'||this.engine==='fusion'||this.engine==='merge')&&this.decideT<=0&&typeof GameSettings!=='undefined'&&GameSettings.aipi&&GameSettings.aipi.enabled){
@@ -13800,18 +13881,18 @@ function drawHUD(g,time){
   // 名字
   g.font='bold 15px "Noto Sans SC",sans-serif';g.textBaseline='middle';
   g.fillStyle='#eef4ff';g.textAlign='left';
-  g.fillText(f1.charDef.name,52,y+hB+16);
+  g.fillText(f1.nameTag||f1.charDef.name,52,y+hB+16);
   g.textAlign='right';
-  g.fillText(f2.charDef.name,W-52,y+hB+16);
+  g.fillText(f2.nameTag||f2.charDef.name,W-52,y+hB+16);
   // 战斗模式图标（仅拥有弹幕普攻的角色显示）
   g.font='16px sans-serif';
   if(f1.charDef.pAtk){
     g.textAlign='left';
-    g.fillText(f1.rangedMode?'🔫':'👊',52+g.measureText(f1.charDef.name).width+10,y+hB+16);
+    g.fillText(f1.rangedMode?'🔫':'👊',52+g.measureText(f1.nameTag||f1.charDef.name).width+10,y+hB+16);
   }
   if(f2.charDef.pAtk){
     g.textAlign='right';
-    g.fillText(f2.rangedMode?'🔫':'👊',W-52-g.measureText(f2.charDef.name).width-10,y+hB+16);
+    g.fillText(f2.rangedMode?'🔫':'👊',W-52-g.measureText(f2.nameTag||f2.charDef.name).width-10,y+hB+16);
   }
   // 能量条 + 怒气条
   const ey=y+hB+24,ew=230,eh=9;
@@ -13949,6 +14030,11 @@ function drawHUD(g,time){
     g.fillText('🎁 道具战 · 下次空投 '+Math.max(0,Math.ceil(Game.airdropT))+'s',W/2,y+74);
   }else if(Game.mode==='brawl'){
     drawBrawlHUD(g,time,y);
+  }else if(Game.mode==='tower'){
+    g.font='bold 15px "Noto Sans SC",sans-serif';g.textAlign='center';g.textBaseline='middle';
+    g.fillStyle=Game.towerInfinite?'#ff5ad9':'#ffd166';
+    const best=Game.loadTowerBest&&Game.loadTowerBest();
+    g.fillText((Game.towerInfinite?'♾ 无尽试炼 · 第 ':'🗼 BOSS 试炼塔 · 第 ')+(Game.towerCount+1)+' 层 · 最佳 '+(best||0)+' 层',W/2,y+74);
   }
   // 连击提示
   for(const [f,x0,align] of [[f1,60,'left'],[f2,W-60,'right']]){
@@ -14498,6 +14584,7 @@ const Game={
   /* v18 BOSS 试炼塔：初始化对局（第1层） */
   setupTower(){
     this.towerCount=0;
+    this.towerInfinite=false; // v20 无尽模式：通关5层后可进入无限层
     BG.setStage('crimson'); // 试炼塔固定血月战场，层数越高压迫越强
     this.camInit();
     this.items.length=0;this.crates.length=0;this.thrown.length=0;
@@ -14512,8 +14599,19 @@ const Game={
     applyUI();
   },
   /* v18 BOSS 试炼塔：按当前层生成传说级 BOSS（欧米茄终极逻辑·非API·纯本地） */
+  /* v20 无尽模式：通关5层后 BOSS 随机化（全角色池）、AI 档位与血量随层数指数递增 */
   spawnTowerBoss(){
-    const lv=TOWER_BOSSES[Math.min(this.towerCount,TOWER_BOSSES.length-1)];
+    let lv;
+    if(this.towerInfinite&&this.towerCount>=TOWER_BOSSES.length){
+      const n=this.towerCount-TOWER_BOSSES.length+1; // 无尽第几层（1起）
+      const pool=CHARS.filter(c=>!c.custom&&c.id!==(this.p1Char&&this.p1Char.id));
+      const pc=pool[Math.floor(Math.random()*pool.length)];
+      lv={name:'无尽·'+pc.name,opp:pc.id,aiLv:Math.min(10,6+Math.floor((n-1)/2)),
+          color:'#ff5ad9',hpMul:1.5+n*.15,armor:true,
+          oppLine:'无尽试炼第 '+n+' 层！'+pc.name+' 狂暴降临，你能撑到第几层？！'};
+    }else{
+      lv=TOWER_BOSSES[Math.min(this.towerCount,TOWER_BOSSES.length-1)];
+    }
     const opp=CHARS.find(c=>c.id===lv.opp)||CHARS[0];
     const f=new Fighter(opp,900,-1,'AI');
     const ai=new AIController(lv.aiLv);ai.isExpert=true;ai.engine='omega'; // BOSS 用欧米茄终极逻辑
@@ -14828,13 +14926,18 @@ const Game={
       this.saveTowerBest(best);
       if(w===this.f1){
         AudioSys.sfx('win');
-        if(!last){
+        if(this.towerInfinite){
+          showResult('无尽试炼 第 '+(this.towerCount+1)+' 层 突破!', '「'+this.f2.nameTag+'」已被击破！<br>最佳纪录 '+best+' 层',
+            [{label:'继续 → 第 '+(this.towerCount+2)+' 层',cb:()=>Game.nextTowerFight()},
+             {label:'返回主菜单',cb:()=>Game.toTitle(),cls:'warn'}],null,true);
+        }else if(!last){
           const next=TOWER_BOSSES[this.towerCount+1];
           showResult('BOSS 第 '+(this.towerCount+1)+' 层 突破!', '「'+next.oppLine+'」<br>下一层：'+next.name+' · '+next.opp+'',
             [{label:'下一层 →',cb:()=>Game.nextTowerFight()}],this.towerCount+1,true);
         }else{
-          showResult('BOSS 试炼塔 通关!!', '五层传说 BOSS 尽数击破！你已是当代最强！',
-            [{label:'再战一轮',cb:()=>{Game.towerCount=0;Game.setupMatch();}},
+          showResult('BOSS 试炼塔 通关!!', '五层传说 BOSS 尽数击破！你已是当代最强！<br><span style="color:#ff5ad9">解锁 v20 无尽模式：BOSS 随机化 · AI 档位与血量指数递增 · 挑战无上限！</span>',
+            [{label:'🔥 无尽模式 →',cb:()=>{Game.towerInfinite=true;Game.nextTowerFight();}},
+             {label:'再战一轮',cb:()=>{Game.towerCount=0;Game.setupMatch();}},
              {label:'返回主菜单',cb:()=>Game.toTitle(),cls:'warn'}],5,true);
         }
       }else{
@@ -17047,6 +17150,10 @@ let _charSearch='';
 function getCharCategory(def){
   if(def.custom)return '自定义';
   const s=def.style||'';
+  /* v20 新系列专属分类：优先于宽泛分类识别 */
+  if(s.includes('星穹战甲'))return '游戏·星穹战甲系';
+  if(s.includes('神话降临'))return '西方·神话降临系';
+  if(s.includes('咱们裸熊'))return '动漫·咱们裸熊系';
   if(s.includes('Ben 10'))return 'Ben 10系';
   if(s.includes('奥特曼'))return '奥特曼系';
   if(s.includes('假面骑士'))return '假面骑士系';
@@ -17143,7 +17250,7 @@ function buildCharGridV2(){
 function buildCharFilterV2(){
   const bar=$('char-filter-bar-v2');if(!bar)return;
   bar.innerHTML='';
-  ['全部','奥特曼系','假面骑士系','战队/怪兽系','漫威系','DC系','动漫系','游戏系','Ben 10系','西方影视系','自定义'].forEach(cat=>{
+  ['全部','游戏·星穹战甲系','西方·神话降临系','动漫·咱们裸熊系','奥特曼系','假面骑士系','战队/怪兽系','漫威系','DC系','动漫系','游戏系','Ben 10系','西方影视系','自定义'].forEach(cat=>{
     const b=document.createElement('button');b.className='cat-tab'+(cat===_charFilter?' on':'');b.dataset.cat=cat;b.textContent=cat;
     b.addEventListener('click',()=>{
       AudioSys.sfx('select');_charFilter=cat;Game.selArmed=false;
