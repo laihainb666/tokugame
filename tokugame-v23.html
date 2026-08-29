@@ -7731,6 +7731,7 @@ const FX={
     this.shake=Math.max(this.shake,10*scale);
   },
   update(dt){
+    if(this.parts.length>520)this.parts.splice(0,this.parts.length-520); // 粒子上限：同屏特效不超 520
     for(let i=this.parts.length-1;i>=0;i--){
       const p=this.parts[i];p.t+=dt;
       if(p.t>=p.life){this.parts.splice(i,1);continue;}
@@ -14510,6 +14511,11 @@ class AIController{
    战场（12 张地图）：视差背景 + 悬浮平台 + 环境粒子
 ===================================================================== */
 const STAGES=[
+  {id:'royaleground',name:'大逃杀战场',sub:'荒原求生 · 超大战场',kind:'city',aw:2800,star:.15,
+    sky:['#081018','#12202c','#24384a'],moon:{x:2100,y:120,r:80,col:'#cfe0ff',glow:'rgba(160,200,255,.4)',crater:'rgba(120,150,190,.5)'},
+    far:'#0c1620',farWin:'rgba(80,120,190,.35)',near:'#081018',nearWin:'rgba(100,140,200,.3)',
+    ground:['#141c28','#0c1118','#05080c'],platCol:['#1c2840','#101828'],platEdge:'#4a6ad8',platKind:'stone',
+    plats:[{x:350,y:470,w:220},{x:880,y:392,w:200},{x:1400,y:470,w:220},{x:1950,y:392,w:200},{x:2400,y:470,w:220}]},
   {id:'nightcity',name:'新宿夜战',sub:'特摄都市 · 午夜',kind:'city',aw:1280,star:.9,
     sky:['#04060f','#0a1128','#1b2648'],moon:{x:1044,y:118,r:62,col:'#e9edf6',glow:'rgba(220,232,255,.5)',crater:'rgba(160,175,205,.5)'},
     far:'#0b1226',farWin:'rgba(70,100,180,.5)',near:'#070b18',nearWin:'rgba(90,120,200,.35)',tower:true,
@@ -16630,7 +16636,7 @@ const Game={
     if(mode==='boss'||mode==='bossai'){
       // Boss 战：玩家队复活在左，BOSS 复位在右
       this.f1.reset(aw*.5-120,1);this.f1.hpDisplay=this.f1.maxHp;
-      if(this.f2)this.f2.reset(aw*.5-40,-1);
+      if(this.f2)this.f2.reset(aw*.5-40,1);
       if(this.f2&&this.f2.aiCtl)this.f2.hpDisplay=this.f2.maxHp;
       if(this.boss&&this.boss.dead){this.boss.dead=false;this.boss.hp=this.boss.maxHp;this.boss.hpDisplay=this.boss.maxHp;this.boss.frozenT=0;this.boss.state='idle';}
       if(this.boss)this.boss.reset(aw*.5+130,-1);
@@ -16948,7 +16954,12 @@ const Game={
               if(!b.dead){
                 if(b===this.f1)inp=in1;
                 else if(b===this.f2&&(this.mode==='brawl'||this.mode==='boss'))inp=in2;
-                else if(b.aiCtl)inp=b.aiCtl.update(dt,b,opp);
+                else if(b.aiCtl){
+                  // 性能优化：非玩家 AI 决策每 2 帧刷新一次（32 人/16 人同屏卡顿优化）
+                  b._aiTick=(b._aiTick||0)+1;
+                  if(b._aiTick%2===1||!b._lastInp)inp=b._lastInp=b.aiCtl.update(dt,b,opp);
+                  else inp=b._lastInp;
+                }
               }
               b.update(dt,inp,opp);
             }
