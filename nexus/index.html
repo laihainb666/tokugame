@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>NEXUS FIGHT — 可扩展格斗引擎</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ============ 顶栏 ============ -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">NX</div>
+      <div class="brand-txt">
+        <h1>NEXUS FIGHT</h1>
+        <span>可扩展格斗引擎 <b id="ver">v0.9</b></span>
+      </div>
+    </div>
+
+    <div class="topbar-mid">
+      <div class="pill" title="当前渲染后端">
+        <span class="dot" id="dot-render"></span>
+        <span id="lbl-render">3D</span>
+      </div>
+      <div class="pill" title="已启用的模组数">
+        <span class="dot" id="dot-mod"></span>
+        <span id="lbl-mod">0 模组</span>
+      </div>
+      <div class="pill" title="每秒逻辑帧 / 钩子调用">
+        <span class="dot" id="dot-fps"></span>
+        <span id="lbl-fps">60 fps</span>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <button class="btn ghost" id="btn-pause" title="暂停 / 继续 (Esc)">暂停</button>
+      <button class="btn ghost" id="btn-restart" title="重新开始 (R)">重开</button>
+      <button class="btn" id="btn-panel" title="侧栏开关">扩展面板</button>
+    </div>
+  </header>
+
+  <!-- ============ 主体 ============ -->
+  <main class="stage-wrap">
+
+    <!-- 战斗画面 -->
+    <section class="stage" id="stage">
+      <canvas id="game" width="1280" height="720"></canvas>
+
+      <!-- 覆盖层：标题 / 选人 -->
+      <div class="overlay" id="screen-title">
+        <div class="ov-inner">
+          <div class="ov-kicker">MULTIMODAL · HOOKABLE · MODULAR</div>
+          <h2 class="ov-title">NEXUS<span>FIGHT</span></h2>
+          <p class="ov-sub">钩子驱动 · 模组热插拔 · 零模型角色 · 九种渲染后端 + 可编程管线</p>
+
+          <div class="slotrow">
+            <button class="slot" id="slot-p1" data-slot="0">
+              <span class="slot-tag">P1</span>
+              <span class="slot-av" id="slot-p1-av">焰</span>
+              <span class="slot-info"><b id="slot-p1-name">焰</b><i id="slot-p1-style">突进 / 空连</i></span>
+            </button>
+            <div class="vs">VS</div>
+            <button class="slot" id="slot-p2" data-slot="1">
+              <span class="slot-tag">P2</span>
+              <span class="slot-av" id="slot-p2-av">霜</span>
+              <span class="slot-info"><b id="slot-p2-name">霜</b><i id="slot-p2-style">立回 / 牵制</i></span>
+            </button>
+          </div>
+
+          <div class="filters" id="pick-filter"></div>
+          <div class="roster" id="pick-roster"></div>
+          <div class="stagerow" id="pick-stage"></div>
+
+          <div class="sel-row modes" id="pick-mode"></div>
+
+          <button class="btn big" id="btn-start">开始对战 <kbd>Enter</kbd></button>
+          <div class="hint">A/D 移动 · W 跳 · S 蹲 · J 轻 · K 重 · L 特殊 · U 超必 · 双击方向冲刺</div>
+        </div>
+      </div>
+
+      <!-- 覆盖层：结算 -->
+      <div class="overlay hidden" id="screen-result">
+        <div class="ov-inner small">
+          <div class="ov-kicker" id="res-kicker">K.O.</div>
+          <h2 class="ov-title sm" id="res-title">P1 获胜</h2>
+          <div class="res-stats" id="res-stats"></div>
+          <button class="btn big" id="btn-again">再来一局 <kbd>Enter</kbd></button>
+        </div>
+      </div>
+
+      <!-- 覆盖层：暂停 -->
+      <div class="overlay hidden" id="screen-pause">
+        <div class="ov-inner small">
+          <div class="ov-kicker">PAUSED</div>
+          <h2 class="ov-title sm">已暂停</h2>
+          <p class="ov-sub">按 Esc 继续 · 右侧面板可热改参数与模组</p>
+        </div>
+      </div>
+
+      <!-- 触屏虚拟按键（多模态输入之一） -->
+      <div class="touchpad hidden" id="touchpad">
+        <div class="tp-dpad">
+          <button data-dir="up">▲</button>
+          <div>
+            <button data-dir="left">◀</button>
+            <button data-dir="down">▼</button>
+            <button data-dir="right">▶</button>
+          </div>
+        </div>
+        <div class="tp-btns">
+          <button data-btn="light">轻</button>
+          <button data-btn="heavy">重</button>
+          <button data-btn="special">特</button>
+          <button data-btn="super">超</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 侧栏 -->
+    <aside class="panel" id="panel">
+      <nav class="tabs">
+        <button class="tab active" data-tab="settings">设置</button>
+        <button class="tab" data-tab="hyper">管线</button>
+        <button class="tab" data-tab="workshop">工坊</button>
+        <button class="tab" data-tab="mods">模组</button>
+        <button class="tab" data-tab="hooks">钩子</button>
+        <button class="tab" data-tab="prefabs">预制体</button>
+        <button class="tab" data-tab="log">日志</button>
+      </nav>
+
+      <div class="tabbody">
+
+        <!-- 设置 -->
+        <div class="pane active" data-pane="settings">
+          <div class="grp">
+            <h3>渲染后端 <span class="tag live">热切换</span></h3>
+            <div class="renderpick" id="pick-render"></div>
+            <p class="note" id="render-note"></p>
+            <p class="note" id="adapt-note"></p>
+          </div>
+
+          <div class="grp">
+            <h3>输入设备</h3>
+            <div class="renderpick" id="pick-input"></div>
+            <p class="note">P2 可切换为 AI / 空输入，用于观察内核数据。</p>
+          </div>
+
+          <div class="grp">
+            <h3>内核参数 <span class="tag">实时生效</span></h3>
+            <div class="sliders" id="sliders"></div>
+          </div>
+
+          <div class="grp">
+            <h3>调试</h3>
+            <label class="chk"><input type="checkbox" id="chk-hitbox"> 显示判定盒</label>
+            <label class="chk"><input type="checkbox" id="chk-hurtbox"> 显示受击盒</label>
+            <label class="chk"><input type="checkbox" id="chk-framedata"> 显示帧数据</label>
+            <label class="chk"><input type="checkbox" id="chk-slow"> 慢动作 (0.35x)</label>
+            <label class="chk"><input type="checkbox" id="chk-touch"> 触屏虚拟按键</label>
+          </div>
+        </div>
+
+        <!-- Hyper 管线 -->
+        <div class="pane" data-pane="hyper">
+          <div class="grp">
+            <h3>Hyper 渲染管线 <span class="tag live">可改写渲染</span></h3>
+            <p class="note">先选基础后端，再编排通道链。切到 <b>Hyper 管线</b> 后端后这里才会生效。</p>
+            <button class="btn" id="btn-gohyper" style="width:100%;margin-bottom:10px">启用 Hyper 管线</button>
+            <label class="mini">基础后端</label>
+            <div class="renderpick" id="hyper-base"></div>
+          </div>
+
+          <div class="grp">
+            <h3>预设</h3>
+            <div class="presets" id="hyper-presets"></div>
+          </div>
+
+          <div class="grp">
+            <h3>通道链 <span class="tag">自上而下执行</span></h3>
+            <div id="hyper-chain" class="chain"></div>
+          </div>
+
+          <div class="grp">
+            <h3>自定义脚本</h3>
+            <p class="note">拿到 <code>api.ctx</code> 与 <code>api.src</code> 直接画。这段代码跑在最后一步，可以完全改写画面。</p>
+            <textarea id="hyper-script" spellcheck="false" placeholder="// api = { ctx, src, W, H, frame, time }
+// 例：画一层扫描光带
+const y = (api.time * 90) % api.H;
+const g = api.ctx.createLinearGradient(0, y - 40, 0, y + 40);
+g.addColorStop(0, 'rgba(120,220,255,0)');
+g.addColorStop(.5, 'rgba(120,220,255,.18)');
+g.addColorStop(1, 'rgba(120,220,255,0)');
+api.ctx.fillStyle = g;
+api.ctx.fillRect(0, y - 40, api.W, 80);"></textarea>
+            <div class="btnrow">
+              <button class="btn" id="btn-script">应用脚本</button>
+              <button class="btn ghost" id="btn-script-example">示例</button>
+              <button class="btn ghost" id="btn-script-clear">清空</button>
+            </div>
+            <div class="mod-err" id="hyper-err"></div>
+          </div>
+        </div>
+
+        <!-- 创意工坊 -->
+        <div class="pane" data-pane="workshop">
+          <div class="grp">
+            <h3>图片生成角色 <span class="tag live">零模型</span></h3>
+            <p class="note">拖一张图进来，自动提取配色并生成一个可玩角色。它没有为任何后端做美术适配，所以每个后端都会走"自动替身"。</p>
+            <div class="dropzone" id="ws-drop">
+              <div class="dz-ico">＋</div>
+              <div>拖入图片 / 点击选择</div>
+              <input type="file" id="ws-file" accept="image/*" hidden>
+            </div>
+            <div class="ws-preview hidden" id="ws-preview">
+              <img id="ws-thumb" alt="预览">
+              <div class="ws-meta">
+                <input id="ws-name" placeholder="角色名" maxlength="12">
+                <div class="pal" id="ws-pal"></div>
+              </div>
+            </div>
+            <div class="btnrow">
+              <button class="btn" id="ws-create" disabled>生成角色</button>
+              <button class="btn ghost" id="ws-clear">清除</button>
+            </div>
+          </div>
+
+          <div class="grp">
+            <h3>我的工坊 <span class="tag live" id="ws-count">0</span></h3>
+            <div id="ws-list" class="wslist"></div>
+            <div class="btnrow" style="margin-top:9px">
+              <button class="btn ghost sm" id="ws-export">导出全部</button>
+              <button class="btn ghost sm" id="ws-import">导入</button>
+            </div>
+            <p class="note" id="ws-note" style="margin-top:8px"></p>
+          </div>
+        </div>
+
+        <!-- 模组 -->
+        <div class="pane" data-pane="mods">          <div class="grp">
+            <h3>模组 <span class="tag live" id="mod-count">0 / 0</span></h3>
+            <div id="modlist" class="modlist"></div>
+          </div>
+          <div class="grp">
+            <h3>载入自定义模组</h3>
+            <p class="note">粘贴一段 JS，调用 <code>FE.registerMod({...})</code>。立即生效，可随时卸载。</p>
+            <textarea id="mod-src" spellcheck="false" placeholder="FE.registerMod({
+  id: 'my-mod',
+  name: '我的模组',
+  setup(api) {
+    api.on('combat:hit', e => {
+      e.damage *= 1.5;          // 全局伤害 x1.5
+      api.log('强化命中', e.damage);
+    });
+  }
+});"></textarea>
+            <div class="btnrow">
+              <button class="btn" id="btn-loadmod">载入并启用</button>
+              <button class="btn ghost" id="btn-clearmod">清空</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 钩子 -->
+        <div class="pane" data-pane="hooks">
+          <div class="grp">
+            <h3>钩子总线 <span class="tag live">实时</span></h3>
+            <p class="note">每个钩子支持优先级、拦截（返回 false 阻断后续）与一次性注册。</p>
+            <div id="hooklist" class="hooklist"></div>
+          </div>
+        </div>
+
+        <!-- 预制体 -->
+        <div class="pane" data-pane="prefabs">
+          <div class="grp">
+            <h3>已注册角色</h3>
+            <div id="charlist" class="charlist"></div>
+          </div>
+          <div class="grp">
+            <h3>已注册战斗模式</h3>
+            <div id="modelist" class="charlist"></div>
+          </div>
+          <div class="grp">
+            <h3>导出当前角色定义</h3>
+            <p class="note">复制 JSON 即可作为新角色预制体的起点。</p>
+            <div class="btnrow">
+              <button class="btn ghost" id="btn-dump">导出 JSON</button>
+              <button class="btn ghost" id="btn-dumpcopy">复制</button>
+            </div>
+            <textarea id="dump-out" spellcheck="false" readonly></textarea>
+          </div>
+        </div>
+
+        <!-- 日志 -->
+        <div class="pane" data-pane="log">
+          <div class="grp">
+            <h3>事件流</h3>
+            <div class="btnrow">
+              <button class="btn ghost sm" id="btn-clearlog">清空</button>
+              <label class="chk inline"><input type="checkbox" id="chk-hooklog"> 记录钩子调用</label>
+            </div>
+            <div id="loglist" class="loglist"></div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+  </main>
+
+  <!-- ============ 状态条 ============ -->
+  <footer class="statusbar">
+    <span id="st-state">idle</span>
+    <span class="sep">|</span>
+    <span id="st-frame">frame 0</span>
+    <span class="sep">|</span>
+    <span id="st-hooks">hooks 0</span>
+    <span class="sep">|</span>
+    <span id="st-render">renderer: 3d</span>
+    <span class="grow"></span>
+    <span id="st-tip">Esc 暂停 · R 重开 · F1 切换渲染后端</span>
+  </footer>
+
+</div>
+
+<!-- ===== 核心 ===== -->
+<script src="src/core/bus.js"></script>
+<script src="src/core/registry.js"></script>
+<script src="src/kernel/c-kernel.js"></script>
+<script src="src/data/balance.js"></script>
+<script src="src/data/moves.js"></script>
+<script src="src/data/characters.js"></script>
+<script src="src/data/modes.js"></script>
+<script src="src/data/toku-pack.js"></script>
+<script src="src/data/packs.js"></script>
+
+<!-- ===== 战斗内核（与渲染无关） ===== -->
+<script src="src/combat/anim.js"></script>
+<script src="src/combat/fighter.js"></script>
+<script src="src/combat/combat.js"></script>
+<script src="src/core/engine.js"></script>
+
+<!-- ===== 输入（多模态） ===== -->
+<script src="src/input/input.js"></script>
+<script src="src/input/ai.js"></script>
+
+<!-- ===== 渲染后端 ===== -->
+<script src="src/render/hud.js"></script>
+<script src="src/render/adapt.js"></script>
+<script src="src/render/spritekit.js"></script>
+<script src="src/render/renderer3d.js"></script>
+<script src="src/render/renderer25d.js"></script>
+<script src="src/render/rendererdata.js"></script>
+<script src="src/render/rendererc.js"></script>
+<script src="src/render/rendererstyled.js"></script>
+<script src="src/render/rendererhyper.js"></script>
+
+<!-- ===== 模组 ===== -->
+<script src="src/core/modloader.js"></script>
+<script src="src/mods/builtin.js"></script>
+
+<!-- ===== UI ===== -->
+<script src="src/ui/workshop.js"></script>
+<script src="src/ui/app.js"></script>
+</body>
+</html>
